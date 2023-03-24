@@ -1,0 +1,17 @@
+{% extends "template.html" %}
+{% block conteudo %}
+    <table>
+        <tr>
+            <th>Lembrete</th>
+            <th>Hora</th>
+            <th>Data</th>
+        </tr>
+        {%for item in lembrete%}
+        <tr>
+            <td>{{item['Lembrete']}}</td>
+            <td>{{item['Hora_ativa']}}</td>
+            <td>{{item['Dia_ativa']}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
