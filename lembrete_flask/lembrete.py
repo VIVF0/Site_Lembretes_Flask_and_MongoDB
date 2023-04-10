@@ -4,8 +4,6 @@ import datetime
 from pymongo import MongoClient
 from hashlib import sha256
 import json
-from flask.json import JSONEncoder
-from bson.json_util import loads
 
 def criptografar(senha):
     hash_senha=sha256(senha.encode())
@@ -43,12 +41,21 @@ def banco_lembretes(db,id_usuario,lembrete,hora_criacao,dia_criacao,hora_ativa,d
 def busca_lembrete(db,id_usuario):
     banco=db['lembrete']
     lembrete={}
-    resultado=banco.find({'Id':id_usuario})
+    resultado=banco.find()
     i=0
     for item in resultado:
         lembrete[i]=item
         i+=1
-    return lembrete    
+    #print(lembrete)
+    i=0
+    retorno={}
+    for elemento in lembrete.items():
+        retorno[i]=elemento
+        i+=1
+    for y in range(0,2):
+        print(retorno[y]['Id'])
+        
+    #print(retorno[0]['Lembrete'])   
 
 def busca_usuario(db,tabela,busca,alvo):
     banco=db[tabela]
@@ -77,13 +84,15 @@ def autentica_senha(EmailEntrada,senhaEntrada,db):
 
 client=MongoClient('localhost',27017)
 db=client.lembrete_mongodb
+#busca_lembrete(db,'6414cc87c1cae14e563f0401')
+
 
 app = Flask(__name__)
 app.secret_key = 'lembrete'
 
 @app.route('/')
 def index():
-    return render_template('index.html',titulo='teste')
+    return render_template('index.html',titulo='teste',imagem=imagem)
 
 @app.route('/login')
 def login():
@@ -138,6 +147,6 @@ def lembrete():
     #if 'usuario' not in session or session['usuario'] == None:
     #    return redirect(url_for('login', proxima=url_for('lembrete')))
     usuario=busca_usuario(db,'usuario','Email','vitor')
-    return render_template('lembrete.html',lembrete=busca_lembrete(db,usuario[]), titulo='Lembretes',id_usuario=session['usuario'])
+    #return render_template('lembrete.html',lembrete=busca_lembrete(db,usuario[]), titulo='Lembretes',id_usuario=session['usuario'])
     
 app.run(debug=True)
