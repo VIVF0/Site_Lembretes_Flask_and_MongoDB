@@ -1,7 +1,7 @@
 {% extends "template.html" %}
 {% block conteudo %}
     <h1>Faça seu Cadastro</h1>
-        <form method="POST" action="{{ url_for('cad_lembrete') }}">
+        <form method="POST" action="{{ url_for('cadastro usuario') }}">
             <p><label>Email:</label> <input class="form-control" type="text" name="email" required></p>
             <p><label>Nome:</label> <input class="form-control" type="text" name="nome" required></p>
             <p><label>Senha:</label> <input class="form-control" type="password" name="senha" required></p>

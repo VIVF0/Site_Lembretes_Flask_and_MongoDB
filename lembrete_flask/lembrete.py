@@ -41,27 +41,21 @@ def banco_lembretes(db,id_usuario,lembrete,hora_criacao,dia_criacao,hora_ativa,d
 def busca_lembrete(db,id_usuario):
     banco=db['lembrete']
     lembrete={}
-    resultado=banco.find()
+    resultado=banco.find({"Id":id_usuario})
     i=0
     for item in resultado:
-        lembrete[i]=item
+        lembrete[i][item.key]=item.value
         i+=1
-    #print(lembrete)
-    i=0
-    retorno={}
-    for elemento in lembrete.items():
-        retorno[i]=elemento
-        i+=1
-    for y in range(0,2):
-        print(retorno[y]['Id'])
-        
-    #print(retorno[0]['Lembrete'])   
+    return lembrete
 
 def busca_usuario(db,tabela,busca,alvo):
     banco=db[tabela]
     resultado=banco.find_one({busca:alvo})
+    usuario={}
     for item in resultado:
-        return loads(item)
+        usuario[i][item.key]=item.value
+        i+=1
+    return usuario
 
 def dia_mes_ano():
     yy=(datetime.datetime.now()).year
@@ -92,7 +86,7 @@ app.secret_key = 'lembrete'
 
 @app.route('/')
 def index():
-    return render_template('index.html',titulo='teste',imagem=imagem)
+    return render_template('index.html',titulo='teste')
 
 @app.route('/login')
 def login():
@@ -119,7 +113,7 @@ def logout():
 def cadastro_usuario():
     return render_template('cad_usuario.html',titulo='Cadastro')
 
-@app.route('/cad_lembrete', methods=['POST',])
+@app.route('/cadastro usuario', methods=['POST',])
 def cadastro_novo_usuario():
     try:
         banco_usuario(db,request.form['email'],request.form['nome'],request.form['senha'])
@@ -131,16 +125,17 @@ def cadastro_novo_usuario():
         flash('Não foi possivel cadastrar o usuario')
         return redirect((url_for('cadastro_usuario')))
 
-@app.route('/cadastro_usuario') 
+@app.route('/cadastro_lembrete') 
 def novo_cadastro():
     return render_template('cad_lembrete.html')
     
-@app.route('/cad_lembrete', methods=['POST',])
+@app.route('/cadastro_lembrete', methods=['POST',])
 def cad_lembrete():
     if 'usuario' not in session or session['usuario'] == None:
         return redirect(url_for('login', proxima=url_for('lembrete')))
     else:
-        cadastro=banco_lembretes(db,session['usuario'],request.form['lembrete'],hora_min(),dia_mes_ano(),request.form['hora'],request.form['dia'])
+        banco_lembretes(db,session['usuario'],request.form['lembrete'],hora_min(),dia_mes_ano(),request.form['hora'],request.form['dia'])
+        return redirect((url_for('lembrete')))
     
 @app.route('/lembrete')
 def lembrete():
