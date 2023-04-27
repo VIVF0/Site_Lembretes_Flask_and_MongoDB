@@ -48,14 +48,13 @@ def busca_lembrete(db,id_usuario):
         i+=1
     return lembrete
 
-def busca_usuario(db,tabela,busca,alvo):
-    banco=db[tabela]
+def exite_usuario(db,busca,alvo):
+    banco=db['usuario']
     resultado=banco.find_one({busca:alvo})
-    usuario={}
-    for item in resultado:
-        usuario[i][item.key]=item.value
-        i+=1
-    return usuario
+    if resultado==None:
+        return True
+    else:
+        return False
 
 def dia_mes_ano():
     yy=(datetime.datetime.now()).year
@@ -70,9 +69,10 @@ def hora_min():
     return f'{hora}:{min}:{seg}'
 
 def autentica_senha(EmailEntrada,senhaEntrada,db):
-    senha=busca_usuario(db,'usuario','Email',EmailEntrada)
-    if senha:
-        return senha['Senha']==criptografar(senhaEntrada)
+    banco=db['usuario']
+    resultado=banco.find_one({EmailEntrada:criptografar(senhaEntrada)})
+    if resultado!=None:
+        return True
     else:
         return False
 
@@ -95,9 +95,9 @@ def login():
 @app.post('/login')
 def autenticar():
     if autentica_senha(request.form['email'],request.form['senha'],db):
-        usuario=busca_usuario(db,'usuario','Email',request.form['email'])
-        session['usuario'] = usuario['_id']
-        flash(usuario['Nome'] + ' logado com sucesso!')
+        email=request.form['email']
+        session['usuario'] = email
+        flash(email + ' logado com sucesso!')
         return redirect(url_for('lembrete'))
     else:
         flash('Usuário não logado.')
@@ -113,26 +113,33 @@ def logout():
 def cadastro_usuario():
     return render_template('cad_usuario.html',titulo='Cadastro')
 
-@app.route('/cadastro usuario', methods=['POST',])
+@app.route('/cadastro_usuario', methods=['POST',])
 def cadastro_novo_usuario():
     try:
-        banco_usuario(db,request.form['email'],request.form['nome'],request.form['senha'])
-        usuario=busca_usuario(db,'usuario','Email',request.form['email'])
-        session['usuario'] = usuario['_id']
-        flash(usuario['Nome'] + ' criado com suesso!')
-        return redirect((url_for('lembrete')))
+        if exite_usuario(db,'email',request.form['email']):
+            cadastro=banco_usuario(db,request.form['email'],request.form['nome'],request.form['senha'])
+            if cadastro:
+                session['usuario'] = request.form['email']
+                flash(request.form['email'] + ' criado com suesso!')
+                return redirect((url_for('cadastro_usuario')))
+            else:
+                flash('Não foi possivel cadastrar o usuario')
+                return redirect((url_for('cadastro_usuario')))
+        else:
+            flash('Não foi possivel cadastrar o usuario')
+            return redirect((url_for('cadastro_usuario')))
     except:
         flash('Não foi possivel cadastrar o usuario')
         return redirect((url_for('cadastro_usuario')))
 
 @app.route('/cadastro_lembrete') 
-def novo_cadastro():
-    return render_template('cad_lembrete.html')
+def cadastro_lembrete():
+    return render_template('cad_lembrete.html',titulo='Cadastro de Lembrete')
     
 @app.route('/cadastro_lembrete', methods=['POST',])
 def cad_lembrete():
     if 'usuario' not in session or session['usuario'] == None:
-        return redirect(url_for('login', proxima=url_for('lembrete')))
+        return redirect(url_for('login'))
     else:
         banco_lembretes(db,session['usuario'],request.form['lembrete'],hora_min(),dia_mes_ano(),request.form['hora'],request.form['dia'])
         return redirect((url_for('lembrete')))
