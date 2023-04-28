@@ -8,17 +8,19 @@
             <div class="card" style="width: 18rem;">
                 <div class="card-body">
                     <h3 class="card-title">{{ item['Lembrete'] }}</h3>
-                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                    <h3>Hora:</h3><h4>{{ item['Hora_ativa'] }}</h4>
-                    <h3>Data:</h3><h4>{{ item['Dia_ativa'] }}</h4> 
+                    <p class="card-text">bla</p>
+                    <h5>Hora:</h5><h6>{{ item['Hora_ativa'] }}</h6>
+                    <h5>Data:</h5><h6>{{ item['Dia_ativa'] }}</h6> 
                     <br>
                     {%if item['Status']=='aberto'%}
-                        <form method="POST" action="{{ url_for('fecha_lembrete') }}">
-                            <input type="hidden" name="item_id" value="{{ item['_id'] }}" required>
-                            <button type="submit" class="btn btn-primary">Fechar</button>
+                        <form method="post" action="{{url_for('fechar', id=item['_id'])}}">
+                            <button class="btn btn-primary">Fechar</button>
                         </form>  
+                        <form method="post" action="">
+                            <button class="btn btn-primary">Editar</button>
+                        </form> 
                     {%else%}
-                        <a class="btn btn-secondary">Fechado</a>
+                        <p class="btn btn-secondary">Fechado</p>
                     {%endif%}                                
                 </div>
             </div>  
