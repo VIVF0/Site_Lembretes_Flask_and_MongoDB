@@ -1,17 +1,30 @@
 {% extends "template.html" %}
 {% block conteudo %}
-    <table>
-        <tr>
-            <th>Lembrete</th>
-            <th>Hora</th>
-            <th>Data</th>
-        </tr>
-        {%for item in lembrete%}
-        <tr>
-            <td>{{item['Lembrete']}}</td>
-            <td>{{item['Hora_ativa']}}</td>
-            <td>{{item['Dia_ativa']}}</td>
-        </tr>
+    <div class="container text-center">
+        {% for item in lembrete %}
+            {% if loop.index0 % 3 == 0 %}
+                <div class="row">
+            {% endif %}
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h3 class="card-title">{{ item['Lembrete'] }}</h3>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <h3>Hora:</h3><h4>{{ item['Hora_ativa'] }}</h4>
+                    <h3>Data:</h3><h4>{{ item['Dia_ativa'] }}</h4> 
+                    <br>
+                    {%if item['Status']=='aberto'%}
+                        <form method="POST" action="{{ url_for('fecha_lembrete') }}">
+                            <input type="hidden" name="item_id" value="{{ item['_id'] }}" required>
+                            <button type="submit" class="btn btn-primary">Fechar</button>
+                        </form>  
+                    {%else%}
+                        <a class="btn btn-secondary">Fechado</a>
+                    {%endif%}                                
+                </div>
+            </div>  
+            {% if loop.index0 % 3 == 2 %}
+                </div>
+            {% endif %}   
         {% endfor %}
-    </table>
+    </div>
 {% endblock %}
