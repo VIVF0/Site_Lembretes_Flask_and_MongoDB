@@ -8,25 +8,30 @@
             <div class="card" style="width: 18rem;">
                 <div class="card-body">
                     <h3 class="card-title">{{ item['Lembrete'] }}</h3>
-                    <p class="card-text">bla</p>
+                    <p class="card-text">{{ item['Descricao'] }}</p>
                     <h5>Hora:</h5><h6>{{ item['Hora_ativa'] }}</h6>
                     <h5>Data:</h5><h6>{{ item['Dia_ativa'] }}</h6> 
                     <br>
-                    {%if item['Status']=='aberto'%}
-                        <form method="post" action="{{url_for('fechar', id=item['_id'])}}">
-                            <button class="btn btn-primary">Fechar</button>
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                        <form method="post" action="{{url_for('deletar', id=item['_id'])}}">
+                            <button class="btn btn-danger">Deletar</button>
                         </form>  
-                        <form method="post" action="">
-                            <button class="btn btn-primary">Editar</button>
-                        </form> 
-                    {%else%}
-                        <p class="btn btn-secondary">Fechado</p>
-                    {%endif%}                                
-                </div>
+                        {%if item['Status']=='aberto'%}
+                            <form method="post" action="{{url_for('fechar', id=item['_id'])}}">
+                                <button class="btn btn-dark">Fechar</button>
+                            </form>  
+                            <form method="post" action="{{url_for('editar', id=item['_id'])}}">
+                                <button class="btn btn-warning">Editar</button>
+                            </form> 
+                        {%else%}
+                            <p class="btn btn-secondary">Fechado</p>
+                        {%endif%}                                
+                    </div>
+                </div> 
             </div>  
             {% if loop.index0 % 3 == 2 %}
                 </div>
-            {% endif %}   
+            {% endif %}  
         {% endfor %}
     </div>
 {% endblock %}

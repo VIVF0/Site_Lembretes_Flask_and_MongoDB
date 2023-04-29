@@ -23,12 +23,13 @@ def cadastrar_usuario(db,email,nome,senha):
     except:
         return False
 
-def cadastrar_lembrete(db,id_usuario,lembrete,hora_criacao,dia_criacao,hora_ativa,dia_ativa):
+def cadastrar_lembrete(db,id_usuario,lembrete,hora_criacao,dia_criacao,hora_ativa,dia_ativa,descricao):
     try:
         db.lembrete.insert_one(
             {
                 'Id':id_usuario,
                 'Lembrete':lembrete,
+                'Descricao':descricao,
                 'Hora_ativa':hora_ativa,
                 'Dia_ativa':dia_ativa,
                 'Hora_criacao':hora_criacao,
@@ -40,6 +41,24 @@ def cadastrar_lembrete(db,id_usuario,lembrete,hora_criacao,dia_criacao,hora_ativ
     except:
         return False
 
+def edita_lembrete(db,id_lembrete,lembrete,hora_edicao,dia_edicao,hora_ativa,dia_ativa,descricao):
+    try:
+        banco=db['lembrete']
+        banco.update_one({'_id':ObjectId(id_lembrete)},
+            {'$set':{
+                'Lembrete':lembrete,
+                'Descricao':descricao,
+                'Hora_ativa':hora_ativa,
+                'Dia_ativa':dia_ativa,
+                'Hora_edicao':hora_edicao,
+                'Dia_edicao':dia_edicao,
+                }
+            }
+        )
+        return True
+    except:
+        return False
+    
 def finalza_lembrete(db,id_lembrete):
     banco=db['lembrete']
     try: 
@@ -48,9 +67,22 @@ def finalza_lembrete(db,id_lembrete):
     except:
         return False
     
+def deleta_lembrete(db,id_lembrete):
+    banco=db['lembrete']
+    try: 
+        banco.delete_one({'_id':ObjectId(id_lembrete)})
+        return True
+    except:
+        return False
+    
 def busca_lembrete(db,id_usuario):
     banco=db['lembrete']
     resultado=banco.find({"Id":id_usuario})
+    return list(resultado)
+
+def busca_lembrete_id(db,id_lembrete):
+    banco=db['lembrete']
+    resultado=banco.find_one({"_id":ObjectId(id_lembrete)})
     return resultado
 
 def existe_usuario(db,busca,alvo):
@@ -151,7 +183,7 @@ def cadastro_lembrete():
     if 'usuario' not in session or session['usuario'] == None:
         return redirect(url_for('login'))
     else:
-        cadastrar_lembrete(db,session['usuario'],request.form['lembrete'],hora_min(),dia_mes_ano(),request.form['hora'],request.form['dia'])
+        cadastrar_lembrete(db,session['usuario'],request.form['lembrete'],hora_min(),dia_mes_ano(),request.form['hora'],request.form['dia'],request.form['descricao'])
         return redirect(url_for('lembrete'))
     
 @app.route('/lembrete')
@@ -165,6 +197,27 @@ def fechar(id):
         flash("Lembrete fechado com sucesso!")
     else:
         flash(f"Não foi possivel finalizar o lembrete: {id}")
+    return redirect(url_for('lembrete'))
+
+@app.post('/deletar/<id>')
+def deletar(id):
+    if deleta_lembrete(db,id):
+        flash("Lembrete deletado com sucesso!")
+    else:
+        flash(f"Não foi possivel deletar o lembrete: {id}")
+    return redirect(url_for('lembrete'))
+
+@app.post('/editar/<id>')
+def editar(id):
+    lembrete=busca_lembrete_id(db,id)
+    return render_template('edita_lembrete.html',titulo=f'Edição {id}',lembrete=lembrete)
+
+@app.post('/edicao/<id>')
+def edicao(id):
+    if edita_lembrete(db,id,request.form['titulo'],hora_min(),dia_mes_ano(),request.form['hora_ativa'],request.form['dia_ativa'],request.form['descricao']):
+        flash("Lembrete editado com sucesso com sucesso!")
+    else:
+        flash("Não foi possivel editar o lembrete!")
     return redirect(url_for('lembrete'))
 
 app.run(debug=True)

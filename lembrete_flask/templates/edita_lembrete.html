@@ -1,0 +1,10 @@
+{% extends "template.html" %}
+{% block conteudo %}
+<form method="post" action="{{url_for('edicao', id=lembrete['_id'])}}">
+    <p><label>Titulo:</label> <input class="form-control" value="{{lembrete['Lembrete']}}" type="text" name="titulo" required></p>
+    <p><label>Descrição:</label> <input class="form-control" value="{{lembrete['descricao']}}" type="text" name="descricao" required></p>
+    <p><label>Hora da Ativação:</label> <input class="form-control" value="{{lembrete['Hora_ativa']}}" type="time" name="hora_ativa" required></p>
+    <p><label>Dia da Ativção:</label> <input class="form-control" value="{{lembrete['Dia_ativa']}}" type="date" name="dia_ativa" required></p>
+    <p><button class="btn btn-primary" type="submit">Editar</button></p>
+</form> 
+{% endblock %}

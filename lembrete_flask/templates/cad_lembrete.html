@@ -3,6 +3,7 @@
     <h1>Crie seu Lembrete</h1>
         <form method="POST" action="{{ url_for('cadastro_lembrete') }}">
             <p><label>Lembrete:</label> <input class="form-control" type="text" name="lembrete" required></p>
+            <p><label>Descrição:</label> <input class="form-control" type="text" name="descricao" required></p>
             <p><label>Hora:</label> <input class="form-control" type="time" name="hora" required></p>
             <p><label>Dia:</label> <input class="form-control" type="date" name="dia" required></p>
             <p><button class="btn btn-primary" type="submit">Cadastrar</button></p>
