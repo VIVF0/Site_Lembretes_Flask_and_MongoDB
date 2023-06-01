@@ -1,6 +1,6 @@
 {% extends "template.html" %}
 {% block conteudo %}
-    <h1>Crie seu Lembrete</h1>
+    <h3>Crie seu Lembrete</h3>
         <form method="POST" action="{{ url_for('cadastro_lembrete') }}">
             <p><label>Lembrete:</label> <input class="form-control" type="text" name="lembrete" required></p>
             <p><label>Descrição:</label> <input class="form-control" type="text" name="descricao" required></p>

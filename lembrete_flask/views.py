@@ -3,15 +3,22 @@ import data_base as dt
 from app import app,db
 from helpers import *
 
+def tentar_sessao():
+    if not session.get('usuario'):
+        return redirect(url_for('login'))
+
 @app.route('/')
 def index():
-    return render_template('index.html',titulo='teste')
+    if not session.get('usuario'):
+        estado_login=False
+    else:
+        estado_login=True
+    return render_template('index.html',titulo='Home',login=estado_login)
 
 @app.route('/login')
 def login():
-    if not session.get('usuario'):
-        return redirect(url_for('lembrete'))
-    return render_template('login.html')
+    tentar_sessao()
+    return render_template('login.html',login=False,titulo='Login')
 
 @app.post('/login')
 def autenticar():
@@ -33,7 +40,7 @@ def logout():
 
 @app.route('/cadastro_usuario')
 def cadastro_usuario():
-    return render_template('cad_usuario.html',titulo='Cadastro')
+    return render_template('cad_usuario.html',titulo='Cadastro',login=False)
 
 @app.route('/cadastro_usuario', methods=['POST',])
 def cadastro_novo_usuario():
@@ -54,20 +61,19 @@ def cadastro_novo_usuario():
 
 @app.route('/cadastro_lembrete') 
 def Page_cadastro_lembrete():
-    return render_template('cad_lembrete.html',titulo='Cadastro de Lembrete')
+    return render_template('cad_lembrete.html',titulo='Cadastro de Lembrete',login=True)
     
 @app.post('/cadastro_lembrete')
 def cadastro_lembrete():
-    if not session.get('usuario'):
-        return redirect(url_for('login'))
-    else:
-        dt.cadastrar_lembrete(db,session['usuario'],request.form['lembrete'],hora_min(),dia_mes_ano(),request.form['hora'],request.form['dia'],request.form['descricao'])
-        return redirect(url_for('lembrete'))
+    tentar_sessao()
+    dt.cadastrar_lembrete(db,session['usuario'],request.form['lembrete'],hora_min(),dia_mes_ano(),request.form['hora'],request.form['dia'],request.form['descricao'])
+    return redirect(url_for('lembrete'))
     
 @app.route('/lembrete')
 def lembrete():
+    tentar_sessao()
     lembrete=dt.busca_lembrete(db,session['usuario'])
-    return render_template('lembrete.html',titulo="Lembretes",lembrete=lembrete)
+    return render_template('lembrete.html',titulo="Lembretes",lembrete=lembrete,login=True)
 
 @app.post('/fechar/<id>')
 def fechar(id):
@@ -88,10 +94,11 @@ def deletar(id):
 @app.post('/editar/<id>')
 def editar(id):
     lembrete=dt.busca_lembrete_id(db,id)
-    return render_template('edita_lembrete.html',titulo=f'Edição {id}',lembrete=lembrete)
+    return render_template('edita_lembrete.html',titulo=f'Edição {id}',lembrete=lembrete,login=True)
 
 @app.post('/edicao/<id>')
 def edicao(id):
+    tentar_sessao()
     if dt.edita_lembrete(db,id,request.form['titulo'],hora_min(),dia_mes_ano(),request.form['hora_ativa'],request.form['dia_ativa'],request.form['descricao']):
         flash("Lembrete editado com sucesso com sucesso!")
     else:
