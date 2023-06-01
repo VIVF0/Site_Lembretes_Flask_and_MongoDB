@@ -3,7 +3,7 @@ import time
 import datetime
 from pymongo import MongoClient
 from hashlib import sha256
-import json
+#import json
 from bson import ObjectId
 
 def criptografar(senha):
@@ -20,7 +20,8 @@ def cadastrar_usuario(db,email,nome,senha):
             }
         )
         return True
-    except:
+    except Exception as e:
+        print("**ERRO::", e)
         return False
 
 def cadastrar_lembrete(db,id_usuario,lembrete,hora_criacao,dia_criacao,hora_ativa,dia_ativa,descricao):
@@ -38,7 +39,8 @@ def cadastrar_lembrete(db,id_usuario,lembrete,hora_criacao,dia_criacao,hora_ativ
             }
         )
         return True
-    except:
+    except Exception as e:
+        print("**ERRO::", e)
         return False
 
 def edita_lembrete(db,id_lembrete,lembrete,hora_edicao,dia_edicao,hora_ativa,dia_ativa,descricao):
@@ -56,7 +58,8 @@ def edita_lembrete(db,id_lembrete,lembrete,hora_edicao,dia_edicao,hora_ativa,dia
             }
         )
         return True
-    except:
+    except Exception as e:
+        print("**ERRO::", e)
         return False
     
 def finalza_lembrete(db,id_lembrete):
@@ -64,7 +67,8 @@ def finalza_lembrete(db,id_lembrete):
     try: 
         banco.update_one({'_id':ObjectId(id_lembrete)}, {'$set':{'Status':'fechado'}})
         return True
-    except:
+    except Exception as e:
+        print("**ERRO::", e)
         return False
     
 def deleta_lembrete(db,id_lembrete):
@@ -72,7 +76,8 @@ def deleta_lembrete(db,id_lembrete):
     try: 
         banco.delete_one({'_id':ObjectId(id_lembrete)})
         return True
-    except:
+    except Exception as e:
+        print("**ERRO::", e)
         return False
     
 def busca_lembrete(db,id_usuario):
@@ -88,7 +93,7 @@ def busca_lembrete_id(db,id_lembrete):
 def existe_usuario(db,busca,alvo):
     banco=db['usuario']
     resultado=banco.find_one({busca:alvo})
-    if resultado==None:
+    if resultado:
         return True
     else:
         return False
@@ -108,7 +113,7 @@ def hora_min():
 def autentica_senha(EmailEntrada,senhaEntrada,db):
     banco=db['usuario']
     resultado=banco.find_one({'Email':EmailEntrada,'Senha':criptografar(senhaEntrada)})
-    if resultado!=None:
+    if resultado:
         return True
     else:
         return False
@@ -131,7 +136,7 @@ def index():
 
 @app.route('/login')
 def login():
-    if session['usuario']!=None:
+    if not session.get('usuario'):
         return redirect(url_for('lembrete'))
     return render_template('login.html')
 
@@ -180,7 +185,7 @@ def Page_cadastro_lembrete():
     
 @app.post('/cadastro_lembrete')
 def cadastro_lembrete():
-    if 'usuario' not in session or session['usuario'] == None:
+    if not session.get('usuario'):
         return redirect(url_for('login'))
     else:
         cadastrar_lembrete(db,session['usuario'],request.form['lembrete'],hora_min(),dia_mes_ano(),request.form['hora'],request.form['dia'],request.form['descricao'])
